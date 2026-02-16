@@ -17,11 +17,26 @@ def test_no_overlap():
     analyzer = RectangleAnalyzer(rectangles)
     assert analyzer.find_overlaps() == []
 
-def test_empty_list():
-    analyzer = RectangleAnalyzer([])
-    assert analyzer.find_overlaps() == []
 
-# --- calculate_coverage_area ---
+def test_three_overlapping_rectangles():
+    """Three rectangles with pairwise and triple overlaps"""
+    rectangles = [
+        {'x': 0, 'y': 0, 'width': 4, 'height': 3},
+        {'x': 2, 'y': 1, 'width': 3, 'height': 3},
+        {'x': 1, 'y': 2, 'width': 2, 'height': 4},
+    ]
+    analyzer = RectangleAnalyzer(rectangles)
+    
+    assert analyzer.find_overlaps() == [(0, 1), (0, 2), (1, 2)]
+   
+    assert analyzer.calculate_coverage_area() == 22
+    # 3 pairwise overlap regions
+    regions = analyzer.get_overlap_regions()
+    assert len(regions) == 3
+    # Triple overlap at [2,3)×[2,3), so point (2,2) is covered by all 3
+    result = analyzer.find_max_overlap_point()
+    assert result['count'] == 3
+# calculate_coverage_area 
 
 def test_coverage_area_two_overlapping():
     rectangles = [
@@ -29,7 +44,7 @@ def test_coverage_area_two_overlapping():
         {'x': 2, 'y': 1, 'width': 3, 'height': 3},
     ]
     analyzer = RectangleAnalyzer(rectangles)
-    # rect 0 = 12, rect 1 = 9, overlap = 2x2 = 4, union = 17
+    
     assert analyzer.calculate_coverage_area() == 17
 
 def test_coverage_area_no_overlap():
@@ -44,7 +59,7 @@ def test_coverage_area_empty():
     analyzer = RectangleAnalyzer([])
     assert analyzer.calculate_coverage_area() == 0
 
-# --- get_overlap_regions ---
+# get_overlap_regions
 
 def test_overlap_region_simple():
     rectangles = [
@@ -65,7 +80,7 @@ def test_overlap_region_none():
     analyzer = RectangleAnalyzer(rectangles)
     assert analyzer.get_overlap_regions() == []
 
-# --- is_point_covered ---
+# is_point_covered
 
 def test_point_inside():
     rectangles = [{'x': 0, 'y': 0, 'width': 4, 'height': 3}]
@@ -77,7 +92,7 @@ def test_point_outside():
     analyzer = RectangleAnalyzer(rectangles)
     assert analyzer.is_point_covered(10, 10) == False
 
-# --- find_max_overlap_point ---
+# max_overlap_point
 
 def test_max_overlap_simple():
     rectangles = [
@@ -88,7 +103,7 @@ def test_max_overlap_simple():
     result = analyzer.find_max_overlap_point()
     assert result['count'] == 2
 
-# --- get_stats ---
+# get_stats
 
 def test_stats_basic():
     """Basic stats test with two overlapping rectangles"""
@@ -119,6 +134,8 @@ def test_one_inside_another():
     analyzer = RectangleAnalyzer(rectangles)
     assert analyzer.find_overlaps() == [(0, 1)]
     assert analyzer.calculate_coverage_area() == 100
+    regions = analyzer.get_overlap_regions()
+    assert regions[0]['region']['width'] * regions[0]['region']['height'] == 9
 
 def test_identical_rectangles():
     """Two rectangles at the exact same position and size"""
@@ -129,7 +146,7 @@ def test_identical_rectangles():
     analyzer = RectangleAnalyzer(rectangles)
     assert analyzer.find_overlaps() == [(0, 1)]
     assert analyzer.calculate_coverage_area() == 25
-
+# edge cases
 def test_single_rectangle():
     """Only one rectangle, so no overlaps and area is just the rectangle's area"""
     rectangles = [{'x': 0, 'y': 0, 'width': 5, 'height': 3}]
@@ -145,26 +162,11 @@ def test_negative_coordinates():
     ]
     analyzer = RectangleAnalyzer(rectangles)
     assert analyzer.find_overlaps() == [(0, 1)]
+def test_empty_list():
+    analyzer = RectangleAnalyzer([])
+    assert analyzer.find_overlaps() == []
 
-def test_three_overlapping_rectangles():
-    """Three rectangles with pairwise and triple overlaps"""
-    rectangles = [
-        {'x': 0, 'y': 0, 'width': 4, 'height': 3},
-        {'x': 2, 'y': 1, 'width': 3, 'height': 3},
-        {'x': 1, 'y': 2, 'width': 2, 'height': 4},
-    ]
-    analyzer = RectangleAnalyzer(rectangles)
-    # All three pairs overlap
-    assert analyzer.find_overlaps() == [(0, 1), (0, 2), (1, 2)]
-    # Union area via inclusion-exclusion: 12+9+8-4-2-2+1 = 22
-    assert analyzer.calculate_coverage_area() == 22
-    # 3 pairwise overlap regions
-    regions = analyzer.get_overlap_regions()
-    assert len(regions) == 3
-    # Triple overlap at [2,3)×[2,3), so point (2,2) is covered by all 3
-    result = analyzer.find_max_overlap_point()
-    assert result['count'] == 3
-
+#stress tests
 def test_many_rectangles_overlapping():
     """100 rectangles all overlapping at origin"""
     rectangles = [

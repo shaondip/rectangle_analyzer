@@ -95,8 +95,8 @@ class RectangleAnalyzer:
         if not self.rectangles:
             return False #if there are no rectangles, we return False as there can be no coverage
         for i in range(len(self.rectangles)):
-            if self.rectangles[i]['x'] <= x < self.rectangles[i]['x'] + self.rectangles[i]['width'] and self.rectangles[i]['y'] <= y < self.rectangles[i]['y'] + self.rectangles[i]['height']:
-                return True #if the point is within the boundaries of any rectangle, we return True 
+            if self.rectangles[i]['x'] <= x <= self.rectangles[i]['x'] + self.rectangles[i]['width'] and self.rectangles[i]['y'] <= y <= self.rectangles[i]['y'] + self.rectangles[i]['height']:
+                return True #if the point is within the boundaries of any rectangle (including edges), we return True 
         return False #if the point is not covered by any rectangle, we return False
     
         
@@ -120,8 +120,8 @@ class RectangleAnalyzer:
         for x in range(min_x, max_x + 1):
             for y in range(min_y, max_y + 1):
                 count = sum(1 for r in self.rectangles
-                            if r['x'] <= x < r['x'] + r['width']
-                            and r['y'] <= y < r['y'] + r['height'])
+                            if r['x'] <= x <= r['x'] + r['width']
+                            and r['y'] <= y <= r['y'] + r['height'])
                 if count > max_overlap['count']:
                     max_overlap = {'x': x, 'y': y, 'count': count}
 
