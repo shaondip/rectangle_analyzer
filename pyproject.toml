@@ -1,0 +1,12 @@
+[project]
+name = "rectangle-analyzer"
+version = "1.0.0"
+description = "A tool for analyzing rectangle overlaps and coverage"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
